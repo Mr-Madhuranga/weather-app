@@ -2,9 +2,12 @@
 
 🛑 File structure 
 
-1.index.html
-2.style.css
-3.app.js 
+• index.html 
+• style.css 
+• app.js 
+ 
 
 use this three files and run this 
+
+
 
