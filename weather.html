@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        /* CSS variables for light and dark themes */
+        :root {
+            --background-color: rgba(240, 240, 240, 0.9);
+            --text-color: #333;
+            --container-bg: rgba(255, 255, 255, 0.8);
+            --button-bg: #0288d1;
+            --button-hover-bg: #0277bd;
+            --border-color: #ccc;
+        }
+
+        .dark-theme {
+            --background-color: rgba(18, 18, 18, 0.9);
+            --text-color: #ffffff;
+            --container-bg: rgba(30, 30, 30, 0.8);
+            --button-bg: #bb86fc;
+            --button-hover-bg: #9855e6;
+            --border-color: #333;
+        }
+
+        /* Base styling */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to bottom, rgba(173, 216, 230, 0.8), rgba(135, 206, 235, 0.8)); /* Base gradient */
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            text-align: center;
+            background: var(--container-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s;
+            backdrop-filter: blur(10px); /* Optional: adds a blur effect to the background behind the container */
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-color);
+            background: none;
+        }
+
+        button {
+            background-color: var(--button-bg);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--button-hover-bg);
+        }
+
+        #weather-info {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.5s, color 0.5s;
+            position: relative;
+            z-index: 1; /* Ensure the content is above the background */
+            color: black; /* Set text color to black */
+            font-weight: bold; /* Make text bold */
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px;
+            border: none;
+            background: none;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+    <div class="container">
+        <h1>Weather App</h1>
+        <input type="text" id="city" placeholder="Enter city name">
+        <button onclick="getWeather()">Get Weather</button>
+        <div id="weather-info"></div>
+    </div>
+
+    <script>
+        const apiKey = '0d307a226a4730a1745234b052fe53ff'; // Replace with your actual API key
+
+        // Theme toggle function
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const themeToggle = document.querySelector('.theme-toggle');
+            if (document.body.classList.contains('dark-theme')) {
+                themeToggle.textContent = '🌙'; // Moon icon for dark theme
+            } else {
+                themeToggle.textContent = '☀️'; // Sun icon for light theme
+            }
+        }
+
+        // Fetch weather data
+        async function getWeather() {
+            const city = document.getElementById('city').value;
+            const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`);
+            const data = await response.json();
+            
+            if (data.cod === 200) {
+                // Set weather info
+                const weatherInfo = document.getElementById('weather-info');
+                weatherInfo.innerHTML = `
+                    <h2>${data.name}, ${data.sys.country}</h2>
+                    <p>Temperature: ${data.main.temp}°C</p>
+                    <p>Weather: ${data.weather[0].description}</p>
+                    <p>Humidity: ${data.main.humidity}%</p>
+                    <p>Wind Speed: ${data.wind.speed} m/s</p>
+                `;
+                // Change background gradient based on weather condition
+                setBackground(data.weather[0].main);
+            } else {
+                document.getElementById('weather-info').innerHTML = `
+                    <p>${data.message}</p>
+                `;
+                // Reset background gradient if weather not found
+                resetBackground();
+            }
+        }
+
+        // Function to set gradient background based on weather type
+        function setBackground(weather) {
+            const weatherInfo = document.getElementById('weather-info');
+            switch (weather) {
+                case 'Clear':
+                    weatherInfo.style.background = 'linear-gradient(to bottom, rgba(135, 206, 235, 0.8), rgba(255, 255, 255, 0.5))'; // Sky blue gradient
+                    break;
+                case 'Clouds':
+                    weatherInfo.style.background = 'linear-gradient(to bottom, rgba(192, 192, 192, 0.8), rgba(255, 255, 255, 0.5))'; // Light grey gradient
+                    break;
+                case 'Rain':
+                    weatherInfo.style.background = 'linear-gradient(to bottom, rgba(173, 216, 230, 0.8), rgba(0, 0, 139, 0.5))'; // Rainy gradient
+                    break;
+                case 'Snow':
+                    weatherInfo.style.background = 'linear-gradient(to bottom, rgba(240, 248, 255, 0.8), rgba(255, 255, 255, 0.5))'; // Snowy gradient
+                    break;
+                case 'Thunderstorm':
+                    weatherInfo.style.background = 'linear-gradient(to bottom, rgba(105, 105, 105, 0.8), rgba(0, 0, 0, 0.5))'; // Thunderstorm gradient
+                    break;
+                case 'Drizzle':
+                    weatherInfo.style.background = 'linear-gradient(to bottom, rgba(211, 211, 211, 0.8), rgba(255, 255, 255, 0.5))'; // Drizzle gradient
+                    break;
+                case 'Fog':
+                    weatherInfo.style.background = 'linear-gradient(to bottom, rgba(211, 211, 211, 0.8), rgba(255, 255, 255, 0.5))'; // Fog gradient
+                    break;
+                default:
+                    resetBackground();
+            }
+        }
+
+        // Function to reset background gradient
+        function resetBackground() {
+            const weatherInfo = document.getElementById('weather-info');
+            weatherInfo.style.background = 'transparent'; // Reset to transparent
+        }
+    </script>
+</body>
+</html>
