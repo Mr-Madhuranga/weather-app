@@ -1,0 +1,84 @@
+/* CSS variables for light and dark themes */
+:root {
+    --background-color: rgba(240, 240, 240, 0.9);
+    --text-color: #333;
+    --container-bg: rgba(255, 255, 255, 0.8);
+    --button-bg: #0288d1;
+    --button-hover-bg: #0277bd;
+    --border-color: #ccc;
+}
+
+.dark-theme {
+    --background-color: rgba(18, 18, 18, 0.9);
+    --text-color: #ffffff;
+    --container-bg: rgba(30, 30, 30, 0.8);
+    --button-bg: #bb86fc;
+    --button-hover-bg: #9855e6;
+    --border-color: #333;
+}
+
+/* Base styling */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(to bottom, rgba(173, 216, 230, 0.8), rgba(135, 206, 235, 0.8)); /* Base gradient */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    text-align: center;
+    background: var(--container-bg);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s;
+    backdrop-filter: blur(10px); /* Optional: adds a blur effect to the background behind the container */
+}
+
+input, button {
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    background: none;
+}
+
+button {
+    background-color: var(--button-bg);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+#weather-info {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.5s, color 0.5s;
+    position: relative;
+    z-index: 1; /* Ensure the content is above the background */
+    color: black; /* Set text color to black */
+    font-weight: bold; /* Make text bold */
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 8px;
+    border: none;
+    background: none;
+    color: var(--text-color);
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
