@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS variables for theme */
+        :root {
+            --background-color: rgba(255, 255, 255, 0.8);
+            --text-color: #333;
+            --container-bg: rgba(255, 255, 255, 0.8);
+            --button-bg: #0288d1;
+            --button-hover-bg: #0277bd;
+            --border-color: #ccc;
+        }
+        /* Base styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #83a4d4, #b6fbff);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            text-align: center;
+            background: var(--container-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s;
+            backdrop-filter: blur(10px);
+            width: 90%;
+            max-width: 400px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-color);
+            background: none;
+            font-family: inherit;
+        }
+        button {
+            background-color: var(--button-bg);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: var(--button-hover-bg);
+        }
+        #weather-info {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            color: black;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        /* Styling for 7-day forecast */
+        .forecast {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        .forecast-day {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather App</h1>
+        <input type="text" id="city" placeholder="Enter city name">
+        <button onclick="getWeather()">Get Weather</button>
+        <div id="weather-info"></div>
+        <div id="forecast-info" class="forecast"></div>
+    </div>
+    <script>
+        const apiKey = '0d307a226a4730a1745234b052fe53ff'; // Using provided API key
+
+        // Fetch current weather and 7-day forecast
+        async function getWeather() {
+            const city = document.getElementById('city').value;
+            const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`);
+            const data = await response.json();
+            
+            if (data.cod === 200) {
+                // Display current weather
+                const weatherInfo = document.getElementById('weather-info');
+                weatherInfo.innerHTML = `
+                    <h2>${data.name}, ${data.sys.country}</h2>
+                    <p>Temperature: ${data.main.temp}°C</p>
+                    <p>Weather: ${data.weather[0].description}</p>
+                    <p>Humidity: ${data.main.humidity}%</p>
+                    <p>Wind Speed: ${data.wind.speed} m/s</p>
+                `;
+
+                // Fetch and display 7-day forecast
+                const lat = data.coord.lat;
+                const lon = data.coord.lon;
+                getForecast(lat, lon);
+            } else {
+                document.getElementById('weather-info').innerHTML = `<p>${data.message}</p>`;
+                document.getElementById('forecast-info').innerHTML = '';
+            }
+        }
+
+        // Fetch 7-day forecast
+        async function getForecast(lat, lon) {
+            const response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&units=metric&appid=${apiKey}`);
+            const data = await response.json();
+
+            const forecastInfo = document.getElementById('forecast-info');
+            forecastInfo.innerHTML = data.daily.slice(1, 8).map(day => {
+                const date = new Date(day.dt * 1000);
+                const dayName = date.toLocaleDateString(undefined, { weekday: 'long' });
+                return `
+                    <div class="forecast-day">
+                        <span>${dayName}</span>
+                        <span>Temp: ${day.temp.day}°C</span>
+                        <span>${day.weather[0].description}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
